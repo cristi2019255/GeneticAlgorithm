@@ -40,7 +40,7 @@ class GeneticAlgorithm:
         """
         self.population = [ self.genome_class(self.genome_config) for _ in range(self.pop_size)]        
 
-    def resolve(self, strategy = 'crossover_strategy', plot_results = False):
+    def resolve(self, strategy = 'crossover_strategy', plot_results = False, write_results = False):
         """_summary_
 
         Args:
@@ -57,7 +57,11 @@ class GeneticAlgorithm:
                 
         best_fitnesses, mean_fitnesses = [], []
         
-        for iter in tqdm(range(self.max_iter)):
+        iteration_range = range(self.max_iter)
+        if write_results:
+            iteration_range = tqdm(iteration_range)
+        
+        for iter in iteration_range:
             
             self.evaluate_fitnesses()
             
@@ -68,10 +72,12 @@ class GeneticAlgorithm:
             mean = sum(fitnesses) / len(fitnesses)
             mean_fitnesses.append(mean)
             
-            tqdm.write(f"Iteration {iter}, best fitness: {self.best_genome.fitness}, mean fitness: {mean} , best genome: {self.best_genome.chromosome}") #, best genome: {self.best_genome.chromosome}
+            if write_results:
+                tqdm.write(f"Iteration {iter}, best fitness: {self.best_genome.fitness}, mean fitness: {mean} , best genome: {self.best_genome.chromosome}") 
             
         if plot_results:
             self.plot_results(best_fitnesses, mean_fitnesses)
+            
         return self.best_genome.fitness
 
 

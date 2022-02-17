@@ -6,6 +6,12 @@ from GeneticAlgorithm.GA import GeneticAlgorithm
 from GeneticAlgorithm.Fitness import TF, B, CO
 import numpy as np
 
+NUMBER_OF_RUNS = 20    
+GENOME_CONFIG = {'type': BitArrayGenome, 'size': 40}
+POPULATION_SIZE = 60 # found with find_optimal_size
+MAX_ITERATION = 50  
+
+RESULTS_FILE_NAME = './Output/GA/results.txt'
 
 def write_file(file_name, content):
     """
@@ -18,16 +24,52 @@ def write_file(file_name, content):
     file.write(content + "\n")
     file.close()
     
-def main():  
-    NUMBER_OF_RUNS = 20
+def find_optimal_population_size():
+    OPTIMAL_SOLUTION = 40
+    POPULATION_SIZE_UPPERBOUND = 1280
     
-    GENOME_CONFIG = {'type': BitArrayGenome, 'size': 40}
-    POPULATION_SIZE = 50
-    MAX_ITERATION = 50  
-
-    RESULTS_FILE_NAME = './Output/GA/results.txt'
+    population_size = 10
+    old_population_size = 10
+    is_population_size_optimal = False
+    bisection = False
+    
+    while (not is_population_size_optimal and population_size <= POPULATION_SIZE_UPPERBOUND):
+        opt_count = 0
+        for i in range(NUMBER_OF_RUNS):
+            print(f'Run {i}')
+            ga = GeneticAlgorithm(pop_size = population_size, 
+                                        max_iter=MAX_ITERATION,
+                                        genome_config=GENOME_CONFIG,
+                                        fitness_function= CO
+                                        )
+            fitness = ga.resolve(strategy='crossover_strategy')
+            if fitness == OPTIMAL_SOLUTION:
+                opt_count += 1
+        
+        print(f'Population size: {population_size}, old population size: {old_population_size}, nr of optimums {opt_count}/{NUMBER_OF_RUNS}')
+            
+        if opt_count >= NUMBER_OF_RUNS - 1:
+            if population_size == old_population_size:
+                return population_size
+            else:
+                bisection = True               
+                population_size = int((old_population_size + population_size) / 2)                                
+                                                
+                if population_size % 10 != 0:
+                    return old_population_size                
+        else:   
+            if bisection:
+                return 2 * population_size - old_population_size
+            else:         
+                old_population_size = population_size
+                population_size *= 2        
     
     
+        
+    return population_size
+        
+     
+def main():   
           
     write_file(RESULTS_FILE_NAME,
                     'Params:\nPopulation_size=' + str(POPULATION_SIZE) +                      
@@ -45,7 +87,6 @@ def main():
                                     )
         fitness = ga.resolve(strategy='crossover_strategy')
         fitnesses.append(fitness)
-
     end_time = datetime.datetime.now()
 
  
@@ -60,5 +101,6 @@ def main():
     
 
 if __name__ == '__main__':
-    main()
+    optimal_pop_size = find_optimal_population_size()
+    print(optimal_pop_size)
     
