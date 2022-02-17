@@ -1,7 +1,6 @@
 import numpy as np
 
 k = 4
-d = 1
 
 def CO(x):
     return np.sum(x)

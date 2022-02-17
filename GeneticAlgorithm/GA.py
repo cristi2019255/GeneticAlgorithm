@@ -6,17 +6,19 @@ from GeneticAlgorithm.BitArrayGenome import BitArrayGenome
 
 class GeneticAlgorithm:            
 
-    def __init__(self,genome_config = {'type': BitArrayGenome}, 
+    def __init__(self,genome_config = {'type': BitArrayGenome, 'size': 40, 'crossover': '2X'}, 
                  pop_size = 100,
                  generations_unchanged = 5, 
                  optimum = 40,
                  fitness_function = lambda x: np.sum(x)):
-        """
-        :param pop_size: population size                                
-        :param mutation_rate: mutation rate
-        :param max_iter: maximum number of iterations
-        :param elitism_rate: elitism rate
+        
         """        
+        :param pop_size: population size                                
+        :param genome_config: dictionary with configurations for genome including type, size and crossover
+        :param generations_unchanged: used for stoping criteria, if best genome fitness does not improve for a number of generations then stop genetic algorithm
+        :param optimum: optimum of the problem, if best genome fitness reaches optimum then stop genetic algorithm
+        :param fitness_function: fitness function to be maximized
+        """
         self.pop_size = pop_size        
         self.population = []                        
         self.genome_class = genome_config['type']
@@ -28,22 +30,22 @@ class GeneticAlgorithm:
 
     def create_population(self):
         """
-        initializing genetic algorithm population
-        each individual information structure is initialized with 
-        random values
-        :return:
+        Initializing genetic algorithm population each individual information structure is initialized with random values        
+        & setting the best genome
         """
         self.population = [ self.genome_class(self.genome_config) for _ in range(self.pop_size)]        
         self.best_genome = self.population[0]
 
     def resolve(self, strategy = 'crossover_strategy', plot_results = False, write_results = False):
-        """_summary_
+        """ Solves the genetic algorithm
 
         Args:
-            strategy (str, optional): _description_. Defaults to 'crossover_strategy'.
+            strategy (str, optional): Strategy for solving GA. Defaults to 'crossover_strategy'.
+            plot_results (bool, optional): Defaults to False.
+            write_results (bool, optional): Defaults to False.
 
         Returns:
-            _type_: _description_
+            best fitness: best genome fitness value
         """
         
         # choosing solver strategy
@@ -57,16 +59,18 @@ class GeneticAlgorithm:
         count_generations_unchanged = 0
         generation = 0
         
+        # generate new population until the stoping criteria is not meet
         while (self.best_genome.fitness != self.optimum and count_generations_unchanged < self.generations_unchanged):        
             
             generation += 1
                         
             self.evaluate_fitnesses()
             
-            resolve_one_generation() # updating population                        
+            resolve_one_generation() # updating population with the new generated population                      
             
             fitnesses = [genome.fitness for genome in self.population]
             
+            # counting if best fitness not changes
             if len(best_fitnesses)!= 0 and best_fitnesses[-1] == self.best_genome.fitness:
                 count_generations_unchanged += 1
             else:
@@ -86,10 +90,8 @@ class GeneticAlgorithm:
 
 
     def _resolve_crossover_strategy(self):
-        """_summary_
-
-        Returns:
-            _type_: _description_
+        """
+         Generating a new population according to crossover only strategy        
         """        
         self.population.sort(key=lambda x: x.fitness, reverse=True)
         self.best_genome = self.population[0]
@@ -116,11 +118,11 @@ class GeneticAlgorithm:
                 
 
     def plot_results(self, best_fitnesses = [], mean_fitnesses = []):
-        """_summary_
+        """Ploting the fitness evolution other generations
 
         Args:
-            best_fitnesses (list, optional): _description_. Defaults to [].
-            mean_fitnesses (list, optional): _description_. Defaults to [].
+            best_fitnesses (list, optional): Defaults to [].
+            mean_fitnesses (list, optional): Defaults to [].
         """
         plt.title('fitness evolution')
         plt.plot(best_fitnesses)
@@ -130,9 +132,7 @@ class GeneticAlgorithm:
 
     def evaluate_fitnesses(self):
         """
-        calculating fitness of individuals
-        we maximize fitness function
-        :return:
+        Calculating fitness of each genome in the population        
         """        
         for _, genome in enumerate(self.population):
             genome.fitness = self.fitness(genome.chromosome)

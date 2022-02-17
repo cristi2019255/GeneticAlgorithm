@@ -21,6 +21,14 @@ class IGenome:
     
     @abstractclassmethod
     def crossover(self, genome):
+        """_summary_: crossover operator
+
+        Args:
+            genome (IGenome): the second parent for crossover
+
+        Raises:
+            NotImplementedError: not implemented
+        """
         raise NotImplementedError
         
     
