@@ -1,0 +1,14 @@
+Params:
+Population_size=50
+max_iter=50
+Best=36
+Avg=34.4
+Worst=33.0
+Run time for 20 runs is 0:00:13.629615
+Params:
+Population_size=50
+max_iter=50
+Best=36
+Avg=34.95
+Worst=32.0
+Run time for 20 runs is 0:00:13.789050
