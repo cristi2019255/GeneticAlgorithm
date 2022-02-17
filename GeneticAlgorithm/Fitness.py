@@ -15,5 +15,5 @@ def B(x):
 
 def TF(x):
     l = len(x)
-    m = int(l/k) - 1    
+    m = int(l/k)    
     return np.sum([B(x[j*k : j*k + k]) for j in range(m)])

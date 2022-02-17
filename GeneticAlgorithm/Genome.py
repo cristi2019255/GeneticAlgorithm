@@ -19,5 +19,10 @@ class IGenome:
     def mutate(self):            
         raise NotImplementedError
     
+    @abstractclassmethod
+    def crossover(self, genome):
+        raise NotImplementedError
+        
+    
     def __str__(self):
         return "Fitness: " + str(self.fitness) + "\n" + "Chromosome: " + str(self.chromosome) + "\n" 
