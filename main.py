@@ -63,9 +63,7 @@ def find_optimal_population_size():
             else:         
                 old_population_size = population_size
                 population_size *= 2        
-    
-    
-        
+                
     return population_size
         
      
@@ -101,6 +99,5 @@ def main():
     
 
 if __name__ == '__main__':
-    optimal_pop_size = find_optimal_population_size()
-    print(optimal_pop_size)
+    main()
     
