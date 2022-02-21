@@ -26,9 +26,9 @@ class GeneticAlgorithm:
         self.generations_unchanged = generations_unchanged
         self.fitness = fitness_function  
         self.optimum = optimum      
-        self.create_population()        
+        self._create_population()        
 
-    def create_population(self):
+    def _create_population(self):
         """
         Initializing genetic algorithm population each individual information structure is initialized with random values        
         & setting the best genome
@@ -55,7 +55,8 @@ class GeneticAlgorithm:
             resolve_one_generation = strategies[strategy]            
         
                 
-        best_fitnesses, mean_fitnesses = [], []        
+        best_fitnesses, mean_fitnesses = [], []      
+        first_schema_trace = [] # tracing the schemata in population  
         count_generations_unchanged = 0
         generation = 0
         
@@ -64,7 +65,8 @@ class GeneticAlgorithm:
             
             generation += 1
                         
-            self.evaluate_fitnesses()
+            self._evaluate_fitnesses()
+            first_schema_trace.append(self._get_number_schema_members())
             
             resolve_one_generation() # updating population with the new generated population                      
             
@@ -85,6 +87,7 @@ class GeneticAlgorithm:
             
         if plot_results:
             self.plot_results(best_fitnesses, mean_fitnesses)
+            self.plot_schemata(first_schema_trace)
             print(self.best_genome.chromosome)
         return self.best_genome.fitness
 
@@ -129,8 +132,38 @@ class GeneticAlgorithm:
         plt.plot(mean_fitnesses)
         plt.legend(['best', 'avg'])
         plt.show()
+        
+    def _get_number_schema_members(self, schemata = (0,0)):
+        """Getting number of schema members in the current population
 
-    def evaluate_fitnesses(self):
+        Args:
+            schemata (tuple, optional): (Schemata value, Schemata index). Defaults to (0,0).
+
+        Returns:
+            int : number of schemata members
+        """
+        nr_schema_members = 0
+        for _, genome in enumerate(self.population):
+            if genome.chromosome[schemata[1]] == schemata[0]:
+                nr_schema_members += 1
+        return nr_schema_members
+        
+    def plot_schemata(self, first_schema_trace):
+        """Ploting the schemata information over generations
+
+        Args:
+            first_schema_trace (int[]): the array of first schema members over generations
+        """
+        plt.title('Schemata analysis')
+        x = range(len(first_schema_trace))
+        second_schema_trace = [self.pop_size - n for n in first_schema_trace] 
+        plt.stackplot(x, second_schema_trace, first_schema_trace, colors=['b', 'r'])    
+        plt.plot(x,second_schema_trace, '*', color='black') 
+        plt.xticks(x) # setting x axis to show integers          
+        plt.legend(['1****...*', '0****...*'])
+        plt.show()
+
+    def _evaluate_fitnesses(self):
         """
         Calculating fitness of each genome in the population        
         """        
