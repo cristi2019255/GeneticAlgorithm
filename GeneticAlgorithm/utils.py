@@ -62,12 +62,16 @@ def find_optimal_population_size(fitness_function, genome_config):
                 population_size *= 2        
     
     end_time = datetime.datetime.now()
-    print(end_time - begin_time) 
-          
+    run_time = end_time - begin_time
+    print(run_time) 
+    write_file(RESULTS_FILE_NAME, 
+               '\nPopulation_size=' + str(population_size) 
+               + '\nRuntime: ' + str(run_time) 
+               + '\nFitness function: ' + str(fitness_function.__name__) 
+               + '\n\n\n')      
     return population_size
 
-def test_ga(fitness_function, genome_config, population_size):
-    write_file(RESULTS_FILE_NAME, 'Params:\nPopulation_size=' + str(population_size))
+def test_ga(fitness_function, genome_config, population_size):    
     
     begin_time = datetime.datetime.now()            
     ga = GeneticAlgorithm(pop_size = population_size, 
