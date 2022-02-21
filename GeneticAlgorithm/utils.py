@@ -79,7 +79,7 @@ def test_ga(fitness_function, genome_config, population_size):
                                     genome_config=genome_config,
                                     fitness_function= fitness_function
                                     )
-    print(ga.resolve(strategy='crossover_strategy', plot_results=True))    
+    print(ga.resolve(strategy='crossover_strategy', plot_results=True, trace_measures= True))    
     end_time = datetime.datetime.now()
         
     print(end_time - begin_time)

@@ -36,7 +36,7 @@ class GeneticAlgorithm:
         self.population = [ self.genome_class(self.genome_config) for _ in range(self.pop_size)]        
         self.best_genome = self.population[0]
 
-    def resolve(self, strategy = 'crossover_strategy', plot_results = False, write_results = False):
+    def resolve(self, strategy = 'crossover_strategy', plot_results = False, write_results = False, trace_measures = False):
         """ Solves the genetic algorithm
 
         Args:
@@ -54,9 +54,18 @@ class GeneticAlgorithm:
         if strategy in strategies:
             resolve_one_generation = strategies[strategy]            
         
+        self.trace_measures = trace_measures
                 
         best_fitnesses, mean_fitnesses = [], []      
-        first_schema_trace = [] # tracing the schemata in population  
+        
+        # measures of population, lists of integers
+        schema_trace_nr_members = [] # tracing the schemata number in population  
+        schema_trace_fitness = [] # tracing the schemata fitness in population  
+        schema_trace_counterpart_fitness = [] # tracing the schemata counterpart fitness in population          
+        bit_ones_proportion = [] # tracing bit ones proporiton
+        self.errors = [] # tracing errors in selection decisions
+        self.correct = [] # tracing correct selection decisions
+        
         count_generations_unchanged = 0
         generation = 0
         
@@ -66,7 +75,13 @@ class GeneticAlgorithm:
             generation += 1
                         
             self._evaluate_fitnesses()
-            first_schema_trace.append(self._get_number_schema_members())
+            
+            if trace_measures:
+                n, m1, std1, m2, std2 = self._get_schema_measures()
+                schema_trace_nr_members.append(n) # tracing the schemata members number in population
+                schema_trace_fitness.append((m1,std1)) # tracing the schemata members fitness in population
+                schema_trace_counterpart_fitness.append((m2,std2)) # tracing the schemata counterpart members fitness in population                
+                bit_ones_proportion.append(self._get_prop_of_bit_ones()) # tracing the bit ones proportion in population                
             
             resolve_one_generation() # updating population with the new generated population                      
             
@@ -87,7 +102,11 @@ class GeneticAlgorithm:
             
         if plot_results:
             self.plot_results(best_fitnesses, mean_fitnesses)
-            self.plot_schemata(first_schema_trace)
+            
+            if trace_measures:
+                self.plot_schemata_analysis(schema_trace_nr_members, schema_trace_fitness, schema_trace_counterpart_fitness)
+                self.plot_measures(bit_ones_proportion)
+            
             print(self.best_genome.chromosome)
         return self.best_genome.fitness
 
@@ -101,10 +120,11 @@ class GeneticAlgorithm:
         shuffle(self.population) 
         
         new_population = []       
+        correct, errors = 0, 0        
         
         for index in range(0, self.pop_size, 2):            
             parent1, parent2 = self.population[index], self.population[index + 1]            
-            child1, child2 = parent1.crossover(parent2)
+            child1, child2 = parent1.crossover(parent2)            
             
             # evaluating fitness
             child1.fitness = self.fitness(child1.chromosome)            
@@ -114,8 +134,25 @@ class GeneticAlgorithm:
             
             # taking the first two best in the parent/child competition and appending to next generation
             family.sort(key=lambda x: x.fitness, reverse=True)
-            new_population.append(family[0])
-            new_population.append(family[1])
+            
+            winner1, winner2 = family[0], family[1]                         
+            new_population.append(winner1)
+            new_population.append(winner2)
+            
+            if self.trace_measures:
+                for i in range(len(parent1.chromosome)):
+                    if parent1.chromosome[i] != parent2.chromosome[i]:
+                        if winner1.chromosome[i] == 0 and winner2.chromosome[i] == 0:
+                            errors += 1
+                            break
+                        if winner1.chromosome[i] == 1 and winner2.chromosome[i] == 1:
+                            correct += 1
+                            break
+        
+        # tracing the nr of correct selection decision and errors
+        if self.trace_measures:
+            self.correct.append(correct)
+            self.errors.append(errors)
         
         self.population = copy.copy(new_population)
                 
@@ -127,45 +164,83 @@ class GeneticAlgorithm:
             best_fitnesses (list, optional): Defaults to [].
             mean_fitnesses (list, optional): Defaults to [].
         """
-        plt.title('fitness evolution')
+        plt.title('Fitness evolution')
         plt.plot(best_fitnesses)
         plt.plot(mean_fitnesses)
         plt.legend(['best', 'avg'])
         plt.show()
         
-    def _get_number_schema_members(self, schemata = (0,0)):
+    def plot_measures(self, bit_ones_proportion):
+        
+        plt.title('Bit ones proportion')      
+        plt.plot(bit_ones_proportion, color='blue')
+        plt.show()
+        
+        plt.title('Measures over population')        
+        plt.plot(self.correct, color='green')
+        plt.plot(self.errors, color = 'red')
+        plt.legend(['Correct selection decisions', 'Errors in selection decisions'])
+        plt.show()
+        
+    def _get_schema_measures(self, schemata = (0,0)):
         """Getting number of schema members in the current population
 
         Args:
             schemata (tuple, optional): (Schemata value, Schemata index). Defaults to (0,0).
 
         Returns:
-            int : number of schemata members
+            int, float, float, float, float : number of schemata members, fitness mean of schemata members, fitness standard deviation of schemata members,
+                                                                          fitness mean of non schemata members, fitness standard deviation of non schemata members,             
+        """        
+        schema_members = list(filter(lambda x: x.chromosome[schemata[1]] == schemata[0], self.population))
+        non_schema_members = list(filter(lambda x: x.chromosome[schemata[1]] != schemata[0], self.population))
+        schema_members_fitness = [genome.fitness for genome in schema_members]
+        non_schema_members_fitness = [genome.fitness for genome in non_schema_members]                        
+        return len(schema_members), np.mean(schema_members_fitness), np.std(schema_members_fitness), np.mean(non_schema_members_fitness), np.std(non_schema_members_fitness)
+    
+    def _get_prop_of_bit_ones(self):
+        """Getting the proportion of bit ones in the population
+
+        Returns:
+            float in [0,1]: The proportion of bit ones in population
         """
-        nr_schema_members = 0
-        for _, genome in enumerate(self.population):
-            if genome.chromosome[schemata[1]] == schemata[0]:
-                nr_schema_members += 1
-        return nr_schema_members
+        nr_bit_ones = sum(genome.fitness for genome in self.population)   
+        nr_bits = self.pop_size * self.genome_config['size']
+        return nr_bit_ones / nr_bits
         
-    def plot_schemata(self, first_schema_trace):
+    def plot_schemata_analysis(self, first_schema_nr, first_schema_fitness, second_schema_fitness):
         """Ploting the schemata information over generations
 
         Args:
-            first_schema_trace (int[]): the array of first schema members over generations
+            first_schema_nr (int[]): the array of number of first schema members over generations,
+            first_schema_fitness ((float, float)[]): the array of tuples (mean, std) of fitness of first schema members over generations,
+            second_schema_fitness ((float, float)[]): the array of tuples (mean, std) of fitness of second schema members over generations,,
+            
         """
-        plt.title('Schemata analysis')
-        x = range(len(first_schema_trace))
-        second_schema_trace = [self.pop_size - n for n in first_schema_trace] 
-        plt.stackplot(x, second_schema_trace, first_schema_trace, colors=['b', 'r'])    
+        plt.title('Schemata analysis nr of schema members')
+        x = range(len(first_schema_nr))
+        second_schema_trace = [self.pop_size - n for n in first_schema_nr] 
+        plt.stackplot(x, second_schema_trace, first_schema_nr, colors=['b', 'r'])    
         plt.plot(x,second_schema_trace, '*', color='black') 
-        plt.xticks(range(0,len(first_schema_trace),2)) # setting x axis to show integers          
+        plt.xticks(range(0,len(first_schema_nr),2)) # setting x axis to show integers          
         plt.legend(['1****...*', '0****...*'])
         plt.show()
+        
+        plt.title('Schemata analysis fitness')
+        y2 = [f[0] for f in second_schema_fitness]
+        e2 = [f[1] for f in second_schema_fitness]
+        plt.errorbar(x, y2, e2, linestyle='None', marker='*', color='b')        
+        y1 = [f[0] for f in first_schema_fitness]
+        e1 = [f[1] for f in first_schema_fitness]
+        plt.errorbar(x, y1, e1, linestyle='None', marker='^', color='r')
+        
+        plt.legend(['1****...* fitness', '0****...* fitness'])
+        plt.show()
+        
 
     def _evaluate_fitnesses(self):
         """
         Calculating fitness of each genome in the population        
         """        
-        for _, genome in enumerate(self.population):
+        for genome in self.population:
             genome.fitness = self.fitness(genome.chromosome)
