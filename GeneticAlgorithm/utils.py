@@ -1,5 +1,3 @@
-import imp
-from GeneticAlgorithm.BitArrayGenome import BitArrayGenome
 from GeneticAlgorithm.GA import GeneticAlgorithm
 import datetime
 import numpy as np

@@ -159,7 +159,7 @@ class GeneticAlgorithm:
         second_schema_trace = [self.pop_size - n for n in first_schema_trace] 
         plt.stackplot(x, second_schema_trace, first_schema_trace, colors=['b', 'r'])    
         plt.plot(x,second_schema_trace, '*', color='black') 
-        plt.xticks(x) # setting x axis to show integers          
+        plt.xticks(range(0,len(first_schema_trace),2)) # setting x axis to show integers          
         plt.legend(['1****...*', '0****...*'])
         plt.show()
 

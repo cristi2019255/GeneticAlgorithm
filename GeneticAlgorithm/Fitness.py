@@ -35,9 +35,9 @@ def TF_non_deceptive_linked(x):
 def TF_deceptive_not_linked(x):
     l = len(x)
     m = int(l/k)    
-    return np.sum([B_1(x[j : : k]) for j in range(k)])
+    return np.sum([B_1(x[j : : m]) for j in range(m)])
 
 def TF_non_deceptive_not_linked(x):
     l = len(x)
     m = int(l/k)    
-    return np.sum([B_2(x[j : : k]) for j in range(k)])
+    return np.sum([B_2(x[j : : m]) for j in range(m)])
