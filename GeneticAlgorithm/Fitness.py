@@ -41,3 +41,5 @@ def TF_non_deceptive_not_linked(x):
     l = len(x)
     m = int(l/k)    
     return np.sum([B_2(x[j : : m]) for j in range(m)])
+
+FITNESS_FUNCTIONS = [CO, TF_deceptive_linked, TF_deceptive_not_linked, TF_non_deceptive_linked, TF_non_deceptive_not_linked]
