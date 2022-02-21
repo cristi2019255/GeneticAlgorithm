@@ -108,7 +108,7 @@ class GeneticAlgorithm:
                 self.plot_measures(bit_ones_proportion)
             
             print(self.best_genome.chromosome)
-        return self.best_genome.fitness
+        return self.best_genome.fitness, generation
 
 
     def _resolve_crossover_strategy(self):

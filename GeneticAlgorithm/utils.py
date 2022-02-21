@@ -37,7 +37,7 @@ def find_optimal_population_size(fitness_function, genome_config):
                                         genome_config=genome_config,
                                         fitness_function= fitness_function
                                         )
-            fitness = ga.resolve(strategy='crossover_strategy') # , write_results=True
+            fitness, _ = ga.resolve(strategy='crossover_strategy') # , write_results=True
             if fitness == OPTIMAL_SOLUTION:
                 opt_count += 1
         
@@ -71,15 +71,29 @@ def find_optimal_population_size(fitness_function, genome_config):
                + '\n\n\n')      
     return population_size
 
-def test_ga(fitness_function, genome_config, population_size):    
-    
+def test_ga(fitness_function, genome_config, population_size, nr_of_runs = 20, plot_results = False, trace_measures = False):                
+    fitnesses = []
+    generations = []
     begin_time = datetime.datetime.now()            
-    ga = GeneticAlgorithm(pop_size = population_size, 
+    for _ in range(nr_of_runs):
+        ga = GeneticAlgorithm(pop_size = population_size, 
                                     optimum= OPTIMAL_SOLUTION,
                                     genome_config=genome_config,
                                     fitness_function= fitness_function
                                     )
-    print(ga.resolve(strategy='crossover_strategy', plot_results=True, trace_measures= True))    
+        fitness, nr_generations = ga.resolve(strategy='crossover_strategy', plot_results=plot_results, trace_measures= trace_measures)
+        fitnesses.append(fitness)
+        generations.append(nr_generations)
     end_time = datetime.datetime.now()
-        
-    print(end_time - begin_time)
+    run_time = end_time - begin_time
+    
+    write_file(RESULTS_FILE_NAME, 
+               '\nPopulation_size=' + str(population_size) 
+               + '\nNumber of runs: ' + str(nr_of_runs)
+               + '\nRuntime: ' + str(run_time) 
+               + '\nFitness function: ' + str(fitness_function.__name__) 
+               + '\nFitness mean: ' + str(np.mean(fitness)) +  ', std: (' + str(np.std(fitnesses)) + ') '
+               + '\nGenerations mean: ' + str(np.mean(generations))
+               + '\n\n\n')                  
+
+    print('Done ... look in the ' + RESULTS_FILE_NAME + ' for the results')
