@@ -131,13 +131,16 @@ class GeneticAlgorithm:
             child1.fitness = self.fitness(child1.chromosome)            
             child2.fitness = self.fitness(child2.chromosome)
                         
-            family = [parent1, parent2, child1, child2]
-            
+            family = [child1, child2]            
+            if parent1.fitness != child1.fitness and parent1.fitness != child2.fitness:
+                family.append(parent1)
+            if parent2.fitness != child2.fitness and parent2.fitness != child1.fitness:
+                family.append(parent2)    
             # taking the first two best in the parent/child competition and appending to next generation
             family.sort(key=lambda x: x.fitness, reverse=True)
             
-            winner1, winner2 = family[0], family[1]                         
-            new_population.append(winner1)
+            winner1, winner2 = family[0], family[1]                                     
+            new_population.append(winner1)            
             new_population.append(winner2)
             
             if self.trace_measures:
