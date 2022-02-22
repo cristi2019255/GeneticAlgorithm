@@ -26,9 +26,8 @@ def experiments():
    experiments_one_type_crossover()
 
 def main():   
-   #experiments()      
-   GENOME_CONFIG['crossover'] = 'UX'
-   test_ga(CO, genome_config= GENOME_CONFIG, population_size= 200, nr_of_runs=1, plot_results= True, trace_measures = True)
+   experiments()         
+   #test_ga(CO, genome_config= GENOME_CONFIG, population_size= 200, nr_of_runs=1, plot_results= True, trace_measures = True)
      
 if __name__ == '__main__':
     main()
