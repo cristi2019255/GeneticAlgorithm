@@ -1,7 +1,4 @@
 from abc import abstractclassmethod
-from re import I
-import numpy as np
-
 
 class IGenome:    
 

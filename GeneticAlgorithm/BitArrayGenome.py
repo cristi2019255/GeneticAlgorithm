@@ -1,5 +1,5 @@
 from copy import copy
-from GeneticAlgorithm.Genome import IGenome
+from GeneticAlgorithm.IGenome import IGenome
 import numpy as np
 
 class BitArrayGenome(IGenome):
@@ -11,14 +11,13 @@ class BitArrayGenome(IGenome):
         self.fitness = 0            
         self.config = config
         self.size: int = config['size']
-        self.crossover_operator: str = config['crossover']        
-        self._random_initialize()        
+        self.crossover_operator: str = config['crossover']             
 
-    def _random_initialize(self):
+    def random_initialize(self):
         """
             _summary_ : Initialize a single genome with an array of bits of length size
         """
-        self.chromosome = np.random.randint(0,2, self.size)
+        self.chromosome = np.random.randint(0, 2, self.size)
         
     def mutate(self):
         """
@@ -44,7 +43,7 @@ class BitArrayGenome(IGenome):
         
         assert(len(offspring1) == len(offspring2)) #checking if children length are equal
         
-        child1, child2 = BitArrayGenome(self.config), BitArrayGenome(self.config)
+        child1, child2 = BitArrayGenome(config = self.config), BitArrayGenome(config = self.config)        
         child1.chromosome = offspring1
         child2.chromosome = offspring2
         
@@ -76,12 +75,12 @@ class BitArrayGenome(IGenome):
         Returns:
             list({0,1}),list({0,1}): children offsprings
         """
-        probabilities = np.random.rand(self.size)        
-        r = 0.5 #1 / self.size 
+        
         offspring1, offspring2 = copy(self.chromosome), copy(genome.chromosome)
         for i in range(self.size):
-            if (probabilities[i] <= r):
-                offspring1[i], offspring2[i] = genome.chromosome[i], self.chromosome[i]            
+            if (np.random.random() < 0.5):
+                offspring1[i], offspring2[i] = genome.chromosome[i], self.chromosome[i]
+
         return offspring1, offspring2
         
     

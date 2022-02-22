@@ -19,8 +19,7 @@ class GeneticAlgorithm:
         :param optimum: optimum of the problem, if best genome fitness reaches optimum then stop genetic algorithm
         :param fitness_function: fitness function to be maximized
         """
-        self.pop_size = pop_size        
-        self.population = []                        
+        self.pop_size = pop_size                
         self.genome_class = genome_config['type']
         self.genome_config = genome_config
         self.generations_unchanged = generations_unchanged
@@ -33,8 +32,9 @@ class GeneticAlgorithm:
         Initializing genetic algorithm population each individual information structure is initialized with random values        
         & setting the best genome
         """
-        self.population = [ self.genome_class(self.genome_config) for _ in range(self.pop_size)]        
-        self.best_genome = self.population[0]
+        self.population = [ self.genome_class(self.genome_config) for _ in range(self.pop_size)]
+        for genome in self.population:
+            genome.random_initialize()                
 
     def resolve(self, strategy = 'crossover_strategy', plot_results = False, write_results = False, trace_measures = False):
         """ Solves the genetic algorithm
@@ -69,10 +69,12 @@ class GeneticAlgorithm:
         count_generations_unchanged = 0
         generation = 0
         
+        # evaluating fitness
         self._evaluate_fitnesses()
+        self.best_genome = max(self.population, key= lambda x: x.fitness)               
         
         # generate new population until the stoping criteria is not meet
-        while (self.best_genome.fitness != self.optimum and count_generations_unchanged < self.generations_unchanged):        
+        while (self.best_genome.fitness != self.optimum and count_generations_unchanged <= self.generations_unchanged):        
             
             generation += 1                                    
             
@@ -83,16 +85,17 @@ class GeneticAlgorithm:
                 schema_trace_counterpart_fitness.append((m2,std2)) # tracing the schemata counterpart members fitness in population                
                 bit_ones_proportion.append(self._get_prop_of_bit_ones()) # tracing the bit ones proportion in population                
             
-            resolve_one_generation() # updating population with the new generated population                      
+            old_best_fitness = self.best_genome.fitness
             
-            fitnesses = [genome.fitness for genome in self.population]
+            resolve_one_generation() # updating population with the new generated population                                              
             
             # counting if best fitness not changes
-            if len(best_fitnesses)!= 0 and best_fitnesses[-1] == self.best_genome.fitness:
+            if old_best_fitness == self.best_genome.fitness:
                 count_generations_unchanged += 1
             else:
                 count_generations_unchanged = 0
-                
+
+            fitnesses = [genome.fitness for genome in self.population]                
             best_fitnesses.append(self.best_genome.fitness)
             mean = sum(fitnesses) / len(fitnesses)
             mean_fitnesses.append(mean)
@@ -114,9 +117,7 @@ class GeneticAlgorithm:
     def _resolve_crossover_strategy(self):
         """
          Generating a new population according to crossover only strategy        
-        """        
-        self.population.sort(key=lambda x: x.fitness, reverse=True)
-        self.best_genome = self.population[0]
+        """         
         shuffle(self.population) 
         
         new_population = []       
@@ -154,7 +155,8 @@ class GeneticAlgorithm:
             self.correct.append(correct)
             self.errors.append(errors)
         
-        self.population = copy.copy(new_population)
+        self.population = copy.deepcopy(new_population)
+        self.best_genome = max(self.population, key= lambda x: x.fitness)                       
                 
 
     def plot_results(self, best_fitnesses = [], mean_fitnesses = []):

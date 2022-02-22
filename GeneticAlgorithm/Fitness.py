@@ -1,6 +1,8 @@
 import numpy as np
 
+l = 40
 k = 4
+m = int(l/k)    
 
 def CO(x):
     return np.sum(x)
@@ -21,25 +23,17 @@ def B_2(x):
     else:
         return k - 2.5 - (k- 2.5)/(k-1) * co
 
-def TF_deceptive_linked(x):
-    l = len(x)
-    m = int(l/k)    
+def TF_deceptive_linked(x):        
     return np.sum([B_1(x[j*k : j*k + k]) for j in range(m)])
 
 
-def TF_non_deceptive_linked(x):
-    l = len(x)
-    m = int(l/k)    
+def TF_non_deceptive_linked(x):    
     return np.sum([B_2(x[j*k : j*k + k]) for j in range(m)])
 
-def TF_deceptive_not_linked(x):
-    l = len(x)
-    m = int(l/k)    
+def TF_deceptive_not_linked(x):    
     return np.sum([B_1(x[j : : m]) for j in range(m)])
 
-def TF_non_deceptive_not_linked(x):
-    l = len(x)
-    m = int(l/k)    
+def TF_non_deceptive_not_linked(x):    
     return np.sum([B_2(x[j : : m]) for j in range(m)])
 
 FITNESS_FUNCTIONS = [CO, TF_deceptive_linked, TF_deceptive_not_linked, TF_non_deceptive_linked, TF_non_deceptive_not_linked]

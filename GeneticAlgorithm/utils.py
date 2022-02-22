@@ -116,7 +116,7 @@ def test_ga(fitness_function, genome_config, population_size, nr_of_runs = 20, p
                + '\\hline \n'
                + str(population_size) + ' & \t ' + str(nr_of_runs) + ' & \t ' + str(fitness_function.__name__).replace('_', ' ') 
                + ' & \t ' + str(round(np.mean(runtimes), 4)) +  ' (' + str(round(np.std(runtimes),4)) + ') ' + ' & \t '               
-               + str(round(np.mean(fitness),4))              +  ' (' + str(round(np.std(fitnesses),4)) + ') ' + ' & \t '
+               + str(round(np.mean(fitnesses),4))              +  ' (' + str(round(np.std(fitnesses),4)) + ') ' + ' & \t '
                + str(round(np.mean(fitness_evals),4))        +  ' (' + str(round(np.std(fitness_evals),4)) + ') ' + ' & \t '
                + str(round(np.mean(generations),4))          +  ' (' + str(round(np.std(generations),4)) + ') ' + '\t \\\\ \n'
                + '\\hline \n'
