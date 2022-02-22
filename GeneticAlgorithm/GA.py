@@ -69,12 +69,12 @@ class GeneticAlgorithm:
         count_generations_unchanged = 0
         generation = 0
         
+        self._evaluate_fitnesses()
+        
         # generate new population until the stoping criteria is not meet
         while (self.best_genome.fitness != self.optimum and count_generations_unchanged < self.generations_unchanged):        
             
-            generation += 1
-                        
-            self._evaluate_fitnesses()
+            generation += 1                                    
             
             if trace_measures:
                 n, m1, std1, m2, std2 = self._get_schema_measures()

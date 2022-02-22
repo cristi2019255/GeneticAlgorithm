@@ -1,3 +1,4 @@
+import time
 from tqdm import tqdm
 from GeneticAlgorithm.GA import GeneticAlgorithm
 import datetime
@@ -76,37 +77,49 @@ def find_optimal_population_size(fitness_function, genome_config):
     run_time = end_time - begin_time
     print('Runtime: ' + str(run_time)) 
     pop_str = str(population_size) if population_size <= POPULATION_SIZE_UPPERBOUND else 'FAILED'
+    
     write_file(RESULTS_FILE_NAME, 
-               '\nPopulation_size=' + pop_str
-               + '\nRuntime: ' + str(run_time) 
-               + '\nFitness function: ' + str(fitness_function.__name__) 
-               + '\nGenome crossover: ' + str(genome_config['crossover'])
-               + '\n\n\n')      
+               '\\hline'
+               + '\nPopulation size & \t Runtime (h:mm:ss.ms) & \t Fitness function & \t Genome crossover \t \\\\ \n' 
+               + '\\hline \n'
+               + pop_str + ' & \t ' + str(run_time) + ' & \t ' + str(fitness_function.__name__).replace('_', ' ') + ' & \t ' + str(genome_config['crossover']) + '\t \\\\ \n'
+               + '\\hline \n'
+               + '\n\n') 
+    
+    if population_size >= POPULATION_SIZE_UPPERBOUND: raise Exception('Error, population size optimum is bigger than ' + str(POPULATION_SIZE_UPPERBOUND))     
     return population_size
 
 def test_ga(fitness_function, genome_config, population_size, nr_of_runs = 20, plot_results = False, trace_measures = False):                
     fitnesses = []
-    generations = []
-    begin_time = datetime.datetime.now()            
-    for _ in range(nr_of_runs):
+    generations = []    
+    runtimes = []
+    fitness_evals = []
+    for _ in tqdm(range(nr_of_runs)):
+        begin_time = time.time()
         ga = GeneticAlgorithm(pop_size = population_size, 
                                     optimum= OPTIMAL_SOLUTION,
                                     genome_config=genome_config,
                                     fitness_function= fitness_function
                                     )
         fitness, nr_generations = ga.resolve(strategy='crossover_strategy', plot_results=plot_results, trace_measures= trace_measures)
+        end_time = time.time()
+        run_time = end_time - begin_time
+        runtimes.append(run_time)
         fitnesses.append(fitness)
+        fitness_evals.append(nr_generations * population_size)
         generations.append(nr_generations)
-    end_time = datetime.datetime.now()
-    run_time = end_time - begin_time
+                    
     
     write_file(RESULTS_FILE_NAME, 
-               '\nPopulation_size=' + str(population_size) 
-               + '\nNumber of runs: ' + str(nr_of_runs)
-               + '\nRuntime: ' + str(run_time) 
-               + '\nFitness function: ' + str(fitness_function.__name__) 
-               + '\nFitness mean: ' + str(np.mean(fitness)) +  ', std: (' + str(np.std(fitnesses)) + ') '
-               + '\nGenerations mean: ' + str(np.mean(generations))
-               + '\n\n\n')                  
+               '\\hline'
+               + '\nPopulation size & \t Number of runs & \t Fitness function & \t Runtime mean (seconds) (std)  & \t Fitness mean (std) & \t Fitness evaluation mean (std) & \t Generations mean (std) \t \\\\ \n'
+               + '\\hline \n'
+               + str(population_size) + ' & \t ' + str(nr_of_runs) + ' & \t ' + str(fitness_function.__name__).replace('_', ' ') 
+               + ' & \t ' + str(round(np.mean(runtimes), 4)) +  ' (' + str(round(np.std(runtimes),4)) + ') ' + ' & \t '               
+               + str(round(np.mean(fitness),4))              +  ' (' + str(round(np.std(fitnesses),4)) + ') ' + ' & \t '
+               + str(round(np.mean(fitness_evals),4))        +  ' (' + str(round(np.std(fitness_evals),4)) + ') ' + ' & \t '
+               + str(round(np.mean(generations),4))          +  ' (' + str(round(np.std(generations),4)) + ') ' + '\t \\\\ \n'
+               + '\\hline \n'
+               + '\n\n')                  
 
     print('Done ... look in the ' + RESULTS_FILE_NAME + ' for the results')

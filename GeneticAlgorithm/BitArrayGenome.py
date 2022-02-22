@@ -79,7 +79,7 @@ class BitArrayGenome(IGenome):
         r = 1 / self.size 
         offspring1, offspring2 = [0] * self.size, [0] * self.size
         for i in range(self.size):
-            if (probabilities[i] < r):
+            if (probabilities[i] <= r):
                 offspring1[i], offspring2[i] = genome.chromosome[i], self.chromosome[i]
             else:
                 offspring1[i], offspring2[i] = self.chromosome[i], genome.chromosome[i]
