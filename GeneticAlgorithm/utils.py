@@ -45,9 +45,7 @@ def find_optimal_population_size(fitness_function, genome_config):
                + '\n')
     population_size = 10
     old_population_size = 10
-    is_population_size_optimal = False
-    bisection = False
-    
+        
     begin_time = datetime.datetime.now()            
     while (population_size <= POPULATION_SIZE_UPPERBOUND):
         opt_count = count_optimal(population_size, genome_config, fitness_function)        
@@ -89,7 +87,7 @@ def find_optimal_population_size(fitness_function, genome_config):
     if population_size >= POPULATION_SIZE_UPPERBOUND: raise Exception('Error, population size optimum is bigger than ' + str(POPULATION_SIZE_UPPERBOUND))     
     return population_size
 
-def test_ga(fitness_function, genome_config, population_size, nr_of_runs = 20, plot_results = False, trace_measures = False):                
+def test_ga(fitness_function, genome_config, population_size, nr_of_runs = 20, plot_results = False, trace_measures = False, print_results = False):                
     fitnesses = []
     generations = []    
     runtimes = []
@@ -101,7 +99,7 @@ def test_ga(fitness_function, genome_config, population_size, nr_of_runs = 20, p
                                     genome_config=genome_config,
                                     fitness_function= fitness_function
                                     )
-        fitness, nr_generations = ga.resolve(strategy='crossover_strategy', plot_results=plot_results, trace_measures= trace_measures)
+        fitness, nr_generations = ga.resolve(strategy='crossover_strategy', plot_results=plot_results, trace_measures= trace_measures, write_results=print_results)
         end_time = time.time()
         run_time = end_time - begin_time
         runtimes.append(run_time)

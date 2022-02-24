@@ -74,7 +74,7 @@ class GeneticAlgorithm:
         self.best_genome = max(self.population, key= lambda x: x.fitness)               
         
         # generate new population until the stoping criteria is not meet
-        while (self.best_genome.fitness != self.optimum and count_generations_unchanged <= self.generations_unchanged):        
+        while (self.best_genome.fitness != self.optimum and count_generations_unchanged < self.generations_unchanged):        
             
             generation += 1                                    
             
