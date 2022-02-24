@@ -10,8 +10,9 @@ class BitArrayGenome(IGenome):
         """
         self.fitness = 0            
         self.config = config
-        self.size: int = config['size']
-        self.crossover_operator: str = config['crossover']             
+        self.size: int = config['size']        
+        crossover_options = {'1X': self._one_point_crossover, '2X': self._two_point_crossover, 'UX': self._uniform_crossover}
+        self.crossover_operator = crossover_options[config['crossover']]
 
     def random_initialize(self):
         """
@@ -34,12 +35,10 @@ class BitArrayGenome(IGenome):
             
         Returns:
             BitArrayGenome, BitArrayGenome : children after crossover
-        """
-        crossover_options = {'1X': self._one_point_crossover, '2X': self._two_point_crossover, 'UX': self._uniform_crossover}
-        
+        """                
         assert(len(self.chromosome) == len(genome.chromosome)) #checking if parents length are equal
         
-        offspring1, offspring2 = crossover_options[self.crossover_operator](genome) # appling crossover operator
+        offspring1, offspring2 = self.crossover_operator(genome) # appling crossover operator
         
         assert(len(offspring1) == len(offspring2)) #checking if children length are equal
         
@@ -78,7 +77,7 @@ class BitArrayGenome(IGenome):
         
         offspring1, offspring2 = copy(self.chromosome), copy(genome.chromosome)
         for i in range(self.size):
-            if (np.random.random() < 0.5):
+            if (np.random.randint(0,2) == 0):
                 offspring1[i], offspring2[i] = genome.chromosome[i], self.chromosome[i]
 
         return offspring1, offspring2
