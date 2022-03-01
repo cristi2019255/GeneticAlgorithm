@@ -76,8 +76,9 @@ class BitArrayGenome(IGenome):
         """
         
         offspring1, offspring2 = copy(self.chromosome), copy(genome.chromosome)
+        probabilities = np.random.randint(0,2, self.size)
         for i in range(self.size):
-            if (np.random.randint(0,2) == 0):
+            if (probabilities[i] == 0):
                 offspring1[i], offspring2[i] = genome.chromosome[i], self.chromosome[i]
 
         return offspring1, offspring2

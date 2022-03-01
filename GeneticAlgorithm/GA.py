@@ -84,13 +84,11 @@ class GeneticAlgorithm:
                 schema_trace_fitness.append((m1,std1)) # tracing the schemata members fitness in population
                 schema_trace_counterpart_fitness.append((m2,std2)) # tracing the schemata counterpart members fitness in population                
                 bit_ones_proportion.append(self._get_prop_of_bit_ones()) # tracing the bit ones proportion in population                
-            
-            old_best_fitness = self.best_genome.fitness
-            
-            resolve_one_generation() # updating population with the new generated population                                              
+                                    
+            changes_in_population = resolve_one_generation() # updating population with the new generated population                                              
             
             # counting if best fitness not changes
-            if old_best_fitness == self.best_genome.fitness:
+            if not changes_in_population:
                 count_generations_unchanged += 1
             else:
                 count_generations_unchanged = 0
@@ -121,7 +119,8 @@ class GeneticAlgorithm:
         shuffle(self.population) 
         
         new_population = []       
-        correct, errors = 0, 0        
+        correct, errors = 0, 0                
+        changes_in_population = False
         
         for index in range(0, self.pop_size, 2):            
             parent1, parent2 = self.population[index], self.population[index + 1]            
@@ -131,11 +130,15 @@ class GeneticAlgorithm:
             child1.fitness = self.fitness(child1.chromosome)            
             child2.fitness = self.fitness(child2.chromosome)
                         
-            family = [child1, child2]            
-            if parent1.fitness != child1.fitness and parent1.fitness != child2.fitness:
-                family.append(parent1)
-            if parent2.fitness != child2.fitness and parent2.fitness != child1.fitness:
-                family.append(parent2)    
+            family = [child1, child2, parent1, parent2]            
+            if parent1.fitness == child1.fitness or parent1.fitness == child2.fitness:
+                family.remove(parent1)
+            if parent2.fitness == child2.fitness or parent2.fitness == child1.fitness:
+                family.remove(parent2)                
+            
+            if (child1.fitness > parent1.fitness and child1.fitness > parent2.fitness) or (child2.fitness > parent1.fitness and child2.fitness > parent2.fitness):
+                changes_in_population = True
+                
             # taking the first two best in the parent/child competition and appending to next generation
             family.sort(key=lambda x: x.fitness, reverse=True)
             
@@ -160,7 +163,7 @@ class GeneticAlgorithm:
         
         self.population = copy.deepcopy(new_population)
         self.best_genome = max(self.population, key= lambda x: x.fitness)                       
-                
+        return changes_in_population                
 
     def plot_results(self, best_fitnesses = [], mean_fitnesses = []):
         """Ploting the fitness evolution other generations

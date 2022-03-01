@@ -23,20 +23,22 @@ def write_file(file_name, content):
     file.write(content + "\n")
     file.close()
 
-def count_optimal(population_size, genome_config, fitness_function):
-    opt_count = 0
-                                
+def is_population_optimal(population_size, genome_config, fitness_function):    
+    errors = 0
+                                    
     for _ in tqdm(range(NUMBER_OF_RUNS)):            
+        if errors > 1:
+            return False
         ga = GeneticAlgorithm(pop_size = population_size, 
                                         optimum= OPTIMAL_SOLUTION,
                                         genome_config=genome_config,
                                         fitness_function= fitness_function
                                         )
         fitness, _ = ga.resolve(strategy='crossover_strategy')
-        if fitness == OPTIMAL_SOLUTION:
-                opt_count += 1
-                
-    return opt_count
+        if fitness != OPTIMAL_SOLUTION:                
+            errors += 1    
+    
+    return True                    
     
 def find_optimal_population_size(fitness_function, genome_config):    
     print (    '\n\n\nSolving for: '
@@ -48,25 +50,21 @@ def find_optimal_population_size(fitness_function, genome_config):
         
     begin_time = datetime.datetime.now()            
     while (population_size <= POPULATION_SIZE_UPPERBOUND):
-        opt_count = count_optimal(population_size, genome_config, fitness_function)        
-        print(f'Population size: {population_size}, old population size: {old_population_size}, nr of optimums {opt_count}/{NUMBER_OF_RUNS}')
-                            
-        if opt_count >= NUMBER_OF_RUNS - 1:            
+        print(f'Population size: {population_size}, old population size: {old_population_size}')                            
+        if is_population_optimal(population_size, genome_config, fitness_function):                                
             break                
         else: 
             old_population_size = population_size
             population_size *= 2        
     
     if population_size <= POPULATION_SIZE_UPPERBOUND:
-        print('Bisection search')
+        print(f'Bisection search ...')
         up = population_size
         low = old_population_size
         while(low < up and int((low + up) / 2) % 10 == 0):       
-            population_size = int((low + up) / 2)  
-            opt_count = count_optimal(population_size, genome_config, fitness_function)            
-            print(f'Population size: {population_size}, nr of optimums {opt_count}/{NUMBER_OF_RUNS}')
-                                        
-            if opt_count >= NUMBER_OF_RUNS - 1:            
+            population_size = int((low + up) / 2)              
+            print(f'Population size: {population_size}')                                        
+            if is_population_optimal(population_size, genome_config, fitness_function):            
                 up = population_size                
             else: 
                 low = population_size                
