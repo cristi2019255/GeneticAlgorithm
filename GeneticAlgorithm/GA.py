@@ -224,23 +224,24 @@ class GeneticAlgorithm:
             first_schema_fitness ((float, float)[]): the array of tuples (mean, std) of fitness of first schema members over generations,
             second_schema_fitness ((float, float)[]): the array of tuples (mean, std) of fitness of second schema members over generations,,
             
-        """
+        """        
         plt.title('Schemata analysis nr of schema members')
-        x = range(len(first_schema_nr))
+        x = np.arange(0, len(first_schema_nr))
         second_schema_trace = [self.pop_size - n for n in first_schema_nr] 
         plt.stackplot(x, second_schema_trace, first_schema_nr, colors=['b', 'r'])    
         plt.plot(x,second_schema_trace, '*', color='black') 
         plt.xticks(range(0,len(first_schema_nr),2)) # setting x axis to show integers          
         plt.legend(['1****...*', '0****...*'])
         plt.show()
-        
+
+        plt.style.use('seaborn-whitegrid')                        
         plt.title('Schemata analysis fitness')
         y2 = [f[0] for f in second_schema_fitness]
         e2 = [f[1] for f in second_schema_fitness]
-        plt.errorbar(x, y2, e2, linestyle='None', marker='*', color='b')        
+        plt.errorbar(x, y2, yerr = e2, color='b', fmt='-o', capsize=4)        
         y1 = [f[0] for f in first_schema_fitness]
         e1 = [f[1] for f in first_schema_fitness]
-        plt.errorbar(x, y1, e1, linestyle='None', marker='^', color='r')
+        plt.errorbar(x + 0.2, y1, yerr = e1, color='red', fmt='-o', capsize=4)        
         
         plt.legend(['1****...* fitness', '0****...* fitness'])
         plt.show()
