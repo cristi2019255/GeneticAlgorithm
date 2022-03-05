@@ -1,3 +1,4 @@
+from random import shuffle
 import time
 from tqdm import tqdm
 from GeneticAlgorithm.GA import GeneticAlgorithm
@@ -119,3 +120,31 @@ def test_ga(fitness_function, genome_config, population_size, nr_of_runs = 20, p
                + '\n\n')                  
 
     print('Done ... look in the ' + RESULTS_FILE_NAME + ' for the results')
+    
+def find_crossover_fitness_correlation(fitness_function, genome_config, population_size):
+        correlation = []
+        ga = GeneticAlgorithm(pop_size = population_size, 
+                                        optimum= OPTIMAL_SOLUTION,
+                                        genome_config=genome_config,
+                                        fitness_function= fitness_function
+                                        )
+        parent_fitnesses = [ga.fitness(g.chromosome) for g in ga.population]
+        for _ in range(NUMBER_OF_RUNS):                                                    
+            new_population = []
+            for index in range(0, ga.pop_size, 2):            
+                parent1, parent2 = ga.population[index], ga.population[index + 1]            
+                child1, child2 = parent1.crossover(parent2)            
+                
+                # evaluating fitness                
+                new_population.append(ga.fitness(child1.chromosome))            
+                new_population.append(ga.fitness(child2.chromosome))
+        
+            children_fitnesses = new_population
+            
+            std1 = np.std(parent_fitnesses)
+            std2 = np.std(children_fitnesses)
+            m1 = np.mean(parent_fitnesses)
+            m2 = np.mean(children_fitnesses)
+            cov = sum([(parent_fitnesses[i] - m1) * (children_fitnesses[i] - m2) / population_size  for i in range(population_size)])            
+            correlation.append(cov / (std1 * std2))
+        return np.mean(correlation)    
