@@ -93,10 +93,11 @@ class GeneticAlgorithm:
             else:
                 count_generations_unchanged = 0
 
-            fitnesses = [genome.fitness for genome in self.population]                
-            best_fitnesses.append(self.best_genome.fitness)
-            mean = sum(fitnesses) / len(fitnesses)
-            mean_fitnesses.append(mean)
+            if plot_results:
+                fitnesses = [genome.fitness for genome in self.population]                
+                best_fitnesses.append(self.best_genome.fitness)
+                mean = sum(fitnesses) / len(fitnesses)
+                mean_fitnesses.append(mean)
             
             if write_results:
                 print(f"Generation {generation}, best fitness: {self.best_genome.fitness}, mean fitness: {mean} , best genome: {self.best_genome.chromosome}") 
@@ -109,7 +110,8 @@ class GeneticAlgorithm:
                 self.plot_measures(bit_ones_proportion)
             
             print(self.best_genome.chromosome)
-        return self.best_genome.fitness, generation
+            
+        return max(self.population, key = lambda x: x.fitness), generation
     
     def _resolve_crossover_strategy(self):
         """
