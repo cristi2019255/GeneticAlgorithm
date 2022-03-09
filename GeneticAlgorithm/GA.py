@@ -111,7 +111,7 @@ class GeneticAlgorithm:
             
             print(self.best_genome.chromosome)
             
-        return max(self.population, key = lambda x: x.fitness), generation
+        return max(self.population, key = lambda x: x.fitness).fitness, generation
     
     def _resolve_crossover_strategy(self):
         """
