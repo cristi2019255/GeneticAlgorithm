@@ -75,12 +75,10 @@ class BitArrayGenome(IGenome):
             list({0,1}),list({0,1}): children offsprings
         """
         
-        offspring1, offspring2 = copy(self.chromosome), copy(genome.chromosome)
-        probabilities = np.random.randint(0,2, self.size)
-        for i in range(self.size):
-            if (probabilities[i] == 0):
-                offspring1[i], offspring2[i] = genome.chromosome[i], self.chromosome[i]
-
+        offspring1, offspring2 = np.copy(self.chromosome), np.copy(genome.chromosome)
+        probabilities = np.random.rand(self.size) < 0.5
+        offspring1[probabilities] = genome.chromosome[probabilities]
+        offspring2[probabilities] = self.chromosome[probabilities]    
         return offspring1, offspring2
         
     

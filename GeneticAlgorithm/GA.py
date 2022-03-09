@@ -110,8 +110,7 @@ class GeneticAlgorithm:
             
             print(self.best_genome.chromosome)
         return self.best_genome.fitness, generation
-
-
+    
     def _resolve_crossover_strategy(self):
         """
          Generating a new population according to crossover only strategy        
@@ -142,9 +141,12 @@ class GeneticAlgorithm:
             # taking the first two best in the parent/child competition and appending to next generation
             family.sort(key=lambda x: x.fitness, reverse=True)
             
-            winner1, winner2 = family[0], family[1]                                     
-            new_population.append(winner1)            
-            new_population.append(winner2)
+            winner1, winner2 = family[0], family[1]                                                 
+            self.population[index] = winner1
+            self.population[index + 1] = winner2
+            
+            if self.best_genome.fitness < winner1.fitness:
+                self.best_genome = winner1
             
             if self.trace_measures:
                 for i in range(len(parent1.chromosome)):
@@ -161,8 +163,6 @@ class GeneticAlgorithm:
             self.correct.append(correct)
             self.errors.append(errors)
         
-        self.population = copy.deepcopy(new_population)
-        self.best_genome = max(self.population, key= lambda x: x.fitness)                       
         return changes_in_population                
 
     def plot_results(self, best_fitnesses = [], mean_fitnesses = []):

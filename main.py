@@ -36,8 +36,8 @@ def experiments_fitness_correlation_coefficient():
          print(fitness_function.__name__.replace('_',' ') + ' & ' + correlation_2x + '& ' + correlation_ux + '\\\\')    
 
 def main():      
-   #experiments()    
-   test_ga(CO, genome_config= GENOME_CONFIG, population_size= 200, nr_of_runs=1, plot_results= True, trace_measures = True)        
+   experiments()       
+   #test_ga(CO, genome_config= GENOME_CONFIG, population_size= 200, nr_of_runs=1, plot_results= True, trace_measures = True)        
    #experiments_fitness_correlation_coefficient()
    
 if __name__ == '__main__':
